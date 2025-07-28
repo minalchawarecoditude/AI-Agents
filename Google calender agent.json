@@ -1,0 +1,309 @@
+{
+  "name": "Google calender agent",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "userQuery"
+            },
+            {
+              "name": "jobDescription"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e8d802dc-7da2-4891-82f9-b644febcc12e",
+      "name": "personal assistant data"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        144,
+        208
+      ],
+      "id": "6b841541-8d29-4c43-a3cc-b11533ba2d29",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "8DAxsPE5RTbMKi2n",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an event in Google Calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "minalchaware3@gmail.com",
+          "mode": "list",
+          "cachedResultName": "minalchaware3@gmail.com"
+        },
+        "additionalFields": {
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        320
+      ],
+      "id": "5d934746-c613-4ffa-bb5b-84e754b207ca",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "4yLqyphkRZj5Vuei",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nuserQuery\n{{ $json.userQuery }}\n\njobDescription\n{{ $json.jobDescription }}",
+        "options": {
+          "systemMessage": "=You are an google calender manager.\n\nToday's date is: {{ $now }}\nYour job is too take in 'userQuery' and 'jobDescription' and determine which tool needs to be used in order to complete what is being resquested.\n\nIf you dont have sufficient information to complete task, then ask the user for more details in the category you need more details in."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "76e8f660-f894-4751-98e6-be9897055f33",
+      "name": "google calender agent"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many events in Google Calendar",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "minalchaware3@gmail.com",
+          "mode": "list",
+          "cachedResultName": "minalchaware3@gmail.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        320
+      ],
+      "id": "31fa7d6d-cafa-4950-bc94-852c8077984e",
+      "name": "search-all-events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "4yLqyphkRZj5Vuei",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an event in Google Calendar",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "minalchaware3@gmail.com",
+          "mode": "list",
+          "cachedResultName": "minalchaware3@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        576,
+        320
+      ],
+      "id": "10d79d77-9a83-486d-9348-17981f6869e7",
+      "name": "delete-events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "4yLqyphkRZj5Vuei",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update an event in Google Calendar",
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "minalchaware3@gmail.com",
+          "mode": "list",
+          "cachedResultName": "minalchaware3@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        736,
+        320
+      ],
+      "id": "13d44b5e-617b-420b-bc96-c3d6667f130e",
+      "name": "update events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "4yLqyphkRZj5Vuei",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get an event in Google Calendar",
+        "operation": "get",
+        "calendar": {
+          "__rl": true,
+          "value": "minalchaware3@gmail.com",
+          "mode": "list",
+          "cachedResultName": "minalchaware3@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        320
+      ],
+      "id": "86596d74-2a43-4d14-92b9-ec953003ed38",
+      "name": "get event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "4yLqyphkRZj5Vuei",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "personal assistant data": {
+      "main": [
+        [
+          {
+            "node": "google calender agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "google calender agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "google calender agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search-all-events": {
+      "ai_tool": [
+        [
+          {
+            "node": "google calender agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "delete-events": {
+      "ai_tool": [
+        [
+          {
+            "node": "google calender agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update events": {
+      "ai_tool": [
+        [
+          {
+            "node": "google calender agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get event": {
+      "ai_tool": [
+        [
+          {
+            "node": "google calender agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "46b3d321-d857-4654-85e3-2c9551af1a09",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "548c99e74eea2feacf12d355e163acc0e5e132646abbb8951bce29c64a6d72ef"
+  },
+  "id": "U51ZTwjdWoArUI1B",
+  "tags": []
+}
