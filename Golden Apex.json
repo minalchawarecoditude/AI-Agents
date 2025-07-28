@@ -1,0 +1,732 @@
+{
+  "name": "Golden Apex",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -160
+      ],
+      "id": "8db26006-abe3-4254-a93c-c67e0cb229ea",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og",
+          "mode": "list",
+          "cachedResultName": "Website scraper leads n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        208,
+        -160
+      ],
+      "id": "f60ee44b-d081-48b8-9263-0eca027a98af",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2tnAQGiB0jQ6pbig",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['website url'].trim() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        -160
+      ],
+      "id": "1aca6a30-b8f5-44fe-b8e6-663950a633e1",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = $json.data;\n\n// Function to extract text from HTML while removing unnecessary spaces\nfunction extractTextFromHTML(html) {\n  // Remove script, style, and other non-visible tags\n  const cleanedHTML = html\n    .replace(/<script[\\s\\S]*?>[\\s\\S]*?<\\/script>/gi, '') // Remove script tags\n    .replace(/<style[\\s\\S]*?>[\\s\\S]*?<\\/style>/gi, '')   // Remove style tags\n    .replace(/<[^>]+>/g, '')                            // Remove all other HTML tags\n    .replace(/\\s+/g, ' ')                               // Replace multiple spaces with a single space\n    .trim();                                            // Trim leading and trailing spaces\n  return cleanedHTML;\n}\n\n// Extract text from the input HTML\nconst extractedText = extractTextFromHTML(data);\n\n// Log or return the extracted text for debugging\nconsole.log(extractedText);\n\n// Return the extracted text as output\nreturn { text: extractedText };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        -160
+      ],
+      "id": "02448876-380d-40f7-8a25-e6b6ed0942c4",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"language\": {\n    \"type\": \"string\",\n    \"description\": \"The main language used on the website, such as English or Hindi.\"\n  },\n  \"brandTone\": {\n    \"type\": \"string\",\n    \"description\": \"The tone of voice used by the brand on their website, e.g., friendly, professional, energetic, premium, etc.\"\n  },\n  \"brandValues\": {\n    \"type\": \"array\",\n    \"items\": {\n      \"type\": \"string\"\n    },\n    \"description\": \"The values or ethos emphasized by the brand, such as community, sustainability, handcrafted quality, local sourcing, etc.\"\n  },\n  \"productCategories\": {\n    \"type\": \"array\",\n    \"items\": {\n      \"type\": \"string\"\n    },\n    \"description\": \"The types of products offered by the brand, such as coffee, food, merchandise, etc.\"\n  },\n  \"customerFocus\": {\n    \"type\": \"string\",\n    \"description\": \"The target customer segment the brand focuses on, e.g., young adults, busy professionals, coffee lovers, etc.\"\n  }\n}\n",
+        "options": {
+          "systemPromptTemplate": "=You are analyzing text scraped from a coffee brand's website. Extract the following details based on the content:\n\n1. **Language**: What is the main language used on the website?\n2. **Brand Tone of Voice**: Describe the brand's tone (e.g., friendly, premium, professional, fun, passionate).\n3. **Values and Ethos**: What values or beliefs does the brand emphasize? (e.g., sustainability, community, handcrafted quality)\n4. **Product Categories**: What main product types does the brand offer?\n5. **Customer Focus**: What type of customer does the brand seem to target? Mention age group, lifestyle, interests, or values if mentioned or implied.\n\nFormat your response as a structured JSON object with clear keys for each point.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        -160
+      ],
+      "id": "8dccf95c-eba7-4996-b8c3-cfdc3df8f951",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        80
+      ],
+      "id": "12c0fdcb-b7bb-4a80-84e7-622efdfcc9a5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "8DAxsPE5RTbMKi2n",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og",
+          "mode": "list",
+          "cachedResultName": "Website scraper leads n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "Extract information": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Business name",
+              "displayName": "Business name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Contact no.",
+              "displayName": "Contact no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email address",
+              "displayName": "Email address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Extract information",
+              "displayName": "Extract information",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1296,
+        -160
+      ],
+      "id": "0ac49b35-8881-40ae-b390-0ef239c7b98d",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2tnAQGiB0jQ6pbig",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        48
+      ],
+      "id": "c338ab92-090b-4fe3-b2c8-70110171eaea",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "8DAxsPE5RTbMKi2n",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og",
+          "mode": "list",
+          "cachedResultName": "Website scraper leads n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Update row in sheet').item.json.row_number }}",
+            "Email Template": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Business name",
+              "displayName": "Business name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Contact no.",
+              "displayName": "Contact no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email address",
+              "displayName": "Email address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Extract information",
+              "displayName": "Extract information",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email Template",
+              "displayName": "Email Template",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2352,
+        -560
+      ],
+      "id": "c634de7b-de5e-4a9a-b6c9-3e13996e3f98",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2tnAQGiB0jQ6pbig",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get a coffee shops from airtable database by searching records.",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appfCh3RbbVQkmjiv",
+          "mode": "list",
+          "cachedResultName": "Golden Apex ",
+          "cachedResultUrl": "https://airtable.com/appfCh3RbbVQkmjiv"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbltvp237uJomM8Gd",
+          "mode": "list",
+          "cachedResultName": "coffee shops",
+          "cachedResultUrl": "https://airtable.com/appfCh3RbbVQkmjiv/tbltvp237uJomM8Gd"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        64,
+        352
+      ],
+      "id": "72f31751-7021-44ea-97ba-5098688cb813",
+      "name": "Search records in Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "DlZMv1jmRRb1pghP",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og",
+          "mode": "list",
+          "cachedResultName": "Website scraper leads n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zq6fMeSQeXwyv634I5nduxYcMGn4jr2WNPzlgBvz1og/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "Email 2": "={{ $json.output['Email 2'] }}",
+            "Email 1": "={{ $json.output['Email 1'] }}",
+            "Email 3": "={{ $json.output['Email 3'] }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Business name",
+              "displayName": "Business name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Contact no.",
+              "displayName": "Contact no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email address",
+              "displayName": "Email address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website url",
+              "displayName": "website url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Extract information",
+              "displayName": "Extract information",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email 1",
+              "displayName": "Email 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email 2",
+              "displayName": "Email 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email 3",
+              "displayName": "Email 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2080,
+        -160
+      ],
+      "id": "25b35288-1f8e-43d1-8090-ecaac33fa8f4",
+      "name": "Update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2tnAQGiB0jQ6pbig",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        384,
+        368
+      ],
+      "id": "844cf023-e365-4823-8487-01c760ecb929",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2112,
+        -1104
+      ],
+      "id": "0d585495-57b1-4d40-8526-56561320bf5a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here is the 3-part email follow-up sequence:\n\nEmail 1: A Drop of Calm for Your Menu\nSubject: Add a Little Chill to Your Lattes\nHi {{ $('Get row(s) in sheet').item.json['Business name'] }},\n{We love {{ $('Get row(s) in sheet').item.json['Business name'] }}'s vibe. Your emphasis on plant-based wellness and\ncreating a calming customer experience really stood out. We felt an instant kinship.}\nI’m reaching out from Goldmine Adaptogens - a California-based, woman-owned\nwellness brand on a mission to help people feel better, naturally. At Goldmine, our\nbestselling bulk tincture, Golden Drops, is a barista-friendly blend of organic adaptogens\nthat stirs into anything (yes, even espresso) without messing with your menu's flavor.\nThink: calm energy, immunity support, and earthy magic your regulars at {{ $('Get row(s) in sheet').item.json['Business name'] }} will love.\n{Golden Drops could be a seamless fit for your wellness-forward menu and vibe.}\nWant to peek at the ingredients or try a sample?\nWarmly,\nBob from Goldmine\n\nEmail 2: Cafés Like Yours Are Loving This\nSubject: What other cafés are saying about Golden Drops\nHey {{ $('Get row(s) in sheet').item.json['Business name'] }},\n{Your commitment to wellness and education at {prospect company name} really caught\nour attention-your space feels like more than just a café, it feels like a place for mindful\nmoments.}\nGoldmine Adaptogens has been sending samples of Golden Drops to cafés like\n{{ $('Get row(s) in sheet').item.json['Business name'] }}, and here’s what we’ve heard:\n\"It blends into everything, and our customers actually ask for it by name now.\"\n☕️\n\"Perfect for our wellness-forward vibe - and no prep headaches.\"\nWith stress support, focus perks, and ingredients like fruiting-body mushrooms and\nashwagandha, it’s the quiet superpower your drinks didn’t know they needed.\n{We think your guests at {{ $('Get row(s) in sheet').item.json['Business name'] }} would be genuinely excited to see\nsomething like Golden Drops on your menu.}\nLet me know where to send your sample—no strings, just herbs.\nBest,\nBob\n\nEmail 3: Just a Soft Nudge\nSubject: A quick check-in + sample?\nHi {{ $('Get row(s) in sheet').item.json['Business name'] }},\n{Everything about {{ $('Get row(s) in sheet').item.json['Business name'] }} - from your community-first focus to your\nthoughtful beverage curation - tells us you really care about what you serve and why.}\nI wanted to check in on behalf of Goldmine Adaptogens in case you’re still curious - we’d\nlove to send you a Golden Drops sample to try—no strings attached.\n{If Golden Drops can support your mission and your guests at ,\n{{ $('Get row(s) in sheet').item.json['Business name'] }}we’d love to explore it together.}\nNo pressure. Just good vibes, great herbs, and a shot at making your customers feel\namazing.\nAll the best,\nBob\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a B2B marketer crafting a highly personalized outreach email to a coffee brand. \n\nUsed this card information to create customised outreach email.\n\n1)Comapany profile card:\nBrand-Goldmine Adaptogen.\nMission- promote wellness through adaptogen.\nMessaging pillar-Modern herbalism, clean ingredient, daily rituals.\n\n2)Product card:\nProduct-golden drop,\nkey feature-Bulk format, neutral taste, support stress relief.\nTarget use: latte, tea, smoothies in cafe environment.\n\n3)prospect profile card:\nTarget audience-Independent coffee shop owner and managers.\nMotivations: wellness-focused menu upgrades, easy implementation, natural branding.\n\nused this data to match the recepient langauge and positioning.\n\nThe recipient coffee shop's brand details are:\n- Language: {{ $json['Extract information'].Language }}\n- Brand Tone:{{ $json['Extract information']['Brand Tone of Voice'] }}\n- Values and Ethos: {{ $json['Extract information']['Values and Ethos'] }}\n- Product Categories: {{ $json['Extract information']['Product Categories'] }}\n- Customer Focus: {{ $json['Extract information']['Customer Focus'] }}\n\n\nWrite a 3 follow up short, smart, and personalized email that matches the recipient’s tone of voice and brand language.  \n- Make sure to highlight how the product aligns with their values, customer focus, and current offerings.  \n- Keep the tone human, sincere, and aligned with their branding.  \n- Your goal is to create a natural and trust-building connection that sparks interest.  \n- Close the email with a clear call to action (e.g., sample, chat, collab) without sounding pushy.\n.\nAlso make sure whereever I have mention the business name in prompt section email templete it need to be visible in personalised email output.\n\nused \nstrutured output parser: for the strcutured email output in 3 field 'Email 1', 'Email 2', 'Email 3'\n{\n  \"Email 1\": \"\",\n  \"Email 2\": \"\",\n  \"Email 3\": \"\"\n}\n\nGive the 3-part follow up email \n\nKeep the message under 150 words. Output only the final email content, no commentary.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        1600,
+        -160
+      ],
+      "id": "6c0a765e-ee99-4ad2-b9d0-37dd0efc986b",
+      "name": "Email 1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"Email 1\": \"\",\n  \"Email 2\": \"\",\n  \"Email 3\": \"\"\n}\n\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1824,
+        16
+      ],
+      "id": "74e47593-fd3d-4a3a-ad6a-1d57a97dc0da",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Email 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email 1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records in Airtable": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Email 1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet2": {
+      "main": [
+        []
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Email 1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1387a14a-f862-4c2c-82bb-f1278ca08bd9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "548c99e74eea2feacf12d355e163acc0e5e132646abbb8951bce29c64a6d72ef"
+  },
+  "id": "jrEHcyNECPlz0FPw",
+  "tags": []
+}
