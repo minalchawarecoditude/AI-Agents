@@ -1,0 +1,223 @@
+{
+  "name": "Salesperson Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=To,\n{{ $json.From }}\n\nSubject Line:\n{{ $json.Subject }}\n\nEmail Body:\n{{ $json.snippet }}\n",
+        "options": {
+          "systemMessage": "=You are a smart and friendly AI salesperson helping users choose the best Dell laptop based on their needs.\n\nYou have access to the following tool:\n\n📦 Tool: `Search Laptop`\nThis tool use to search for laptops using the following fields:\n- Model Name\n- Operating System (Windows / Ubuntu / DOS)\n- Price (in INR)\n- CPU (i3 / i5 / i7 / Ryzen)\n- GPU (Integrated / Dedicated / NVIDIA / AMD)\n- RAM\n- Storage\n- Screen Size\n- Use Case (e.g., Gaming, Office, Multimedia, Business, Content Creation)\n- Product URL\n\n\n\n🎯 **Your Job:**\n1. Read the email and understand the user query in the email.\n2. If the user already gave enough details (at least OS, Budget, CPU, GPU), then search the `Search Laptop` tool and recommend the top 1–2 best matches.\n3. If any required detail is missing, ask only those specific questions to gather missing preferences.\n\nUse these questions to fill the gaps:\n- What operating system do you prefer? (Windows / Ubuntu / DOS / Any)\n- What is your budget range or maximum budget? (in INR)\n- Do you have a preferred processor? (i3 / i5 / i7 / Ryzen)\n- Do you need a dedicated GPU or will integrated graphics work?\n- [Optional] Any preferences for RAM, storage, screen size, or use case (e.g., gaming, office, content creation, etc.)?\n\n🎁 Once you have enough details:\n- Use `Search Laptop` to find suitable laptops.\n- Recommend 1 or 2 Dell laptops with:\n  - ✅ Model Name\n  - 🔧 Key specs (CPU, GPU, RAM, Storage, Screen Size)\n  - 💸 Price\n  - 🔗 Buy Link (Product URL)\n\nFinish with:\n> Would you like more options or are you happy with this one?\n\n🧠 Be conversational and polite, like a helpful store assistant.\n",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        368,
+        864
+      ],
+      "id": "1b78027c-0ff8-47bf-a0d9-398aa11f24a8",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        512,
+        1136
+      ],
+      "id": "4e5510a4-1b6d-4bbb-b3ff-242e4f1f6104",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "81K4hq3GyecF8iYN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get a dell-assistant - Sheet1.csv in Airtable",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "app1uxQ0VstZptiSq",
+          "mode": "list",
+          "cachedResultName": "dell-assistant - Sheet1.csv",
+          "cachedResultUrl": "https://airtable.com/app1uxQ0VstZptiSq"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbllBh2MbYVpfRdWj",
+          "mode": "list",
+          "cachedResultName": "Imported table",
+          "cachedResultUrl": "https://airtable.com/app1uxQ0VstZptiSq/tbllBh2MbYVpfRdWj"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        1136
+      ],
+      "id": "417aeffb-f52d-475b-9cb9-4d9d6cf43293",
+      "name": "Search Laptop",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Ao7EDrSDrhiHskyJ",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        864
+      ],
+      "id": "fc3dbc61-23e1-4810-b3f0-d7fb7758e1fb",
+      "name": "watching inbox👁️",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xDObZw6NOkIEku9K",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        864
+      ],
+      "id": "359ab2ab-0f6a-469a-81e7-71c7858c7b1e",
+      "name": "getting details",
+      "webhookId": "e4cf8444-1a5e-4789-9f1b-d35f4d55bbc5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2sKJIAMfLlyUhMTw",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('watching inbox👁️').item.json.From }}",
+        "subject": "Text",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        864
+      ],
+      "id": "e4e38e70-e666-4e31-a82a-32a48bb5bc5b",
+      "name": "Send a message2",
+      "webhookId": "162fdba9-2a3e-4d02-95d8-a24469a2b1e9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xDObZw6NOkIEku9K",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Laptop": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "watching inbox👁️": {
+      "main": [
+        [
+          {
+            "node": "getting details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getting details": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e33b8f2e-76de-46e5-9d64-574ca2910165",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "82a9af11771b1233b401187273d7e313ef46cff17318b4a2579762e2ea6ff880"
+  },
+  "id": "4mlNfk5jKlbbh1Rt",
+  "tags": []
+}
