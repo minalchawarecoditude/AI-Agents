@@ -1,0 +1,356 @@
+{
+  "name": "rag-agent-setup",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -832,
+        -96
+      ],
+      "id": "6575d54f-29bc-4d65-be0b-83c6f541dc53",
+      "name": "When chat message received",
+      "webhookId": "e0161c4b-a584-4f06-9659-0f815dd79f72"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        240
+      ],
+      "id": "17aa3e36-59e0-4ab9-8bfd-c5aca870bc88",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "81K4hq3GyecF8iYN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        256
+      ],
+      "id": "dac8f4d3-c90c-44c1-962a-f2d132881520",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        688,
+        464
+      ],
+      "id": "3d4419de-d1c4-46a2-bb96-77166586eda1",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "81K4hq3GyecF8iYN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "rag-agent",
+          "mode": "list",
+          "cachedResultName": "rag-agent"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        480
+      ],
+      "id": "5c01290d-818d-4f29-bb77-80a86e832f13",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "XlJOHiElcU2bHKHg",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        640
+      ],
+      "id": "66fee7c4-85dd-4114-ae19-4ba6ecffe7a8",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "81K4hq3GyecF8iYN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -848,
+        64
+      ],
+      "id": "3908410e-d075-459b-8608-2dcb2422fa5c",
+      "name": "watching inbox👁️",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xDObZw6NOkIEku9K",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -624,
+        64
+      ],
+      "id": "ed10772f-5793-4130-b111-477b6243c6ab",
+      "name": "getting details",
+      "webhookId": "e4cf8444-1a5e-4789-9f1b-d35f4d55bbc5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xDObZw6NOkIEku9K",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "=This dataset contains detailed information about the best laptops for 2025, including expert reviews, pros and cons, specifications, use-case suitability, and model comparisons. Each entry provides insights into laptop performance (CPU, GPU, RAM, storage), display quality, battery life, build, price, and value for money. The data also includes recommendations categorized by use case—like best for gaming, students, creators, and business—and highlights why a specific model is picked as the top choice in that category. Operating system, brand reliability, and upgradeability are also covered.\n",
+        "topK": 5
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        256
+      ],
+      "id": "acbaf079-88a4-4984-b5a2-be4dbb41951c",
+      "name": "Laptop database"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('watching inbox👁️').item.json.From }}",
+        "subject": "Text",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -608,
+        -80
+      ],
+      "id": "45abab11-3dcd-467b-b675-eedf7aeede73",
+      "name": "Send a message2",
+      "webhookId": "162fdba9-2a3e-4d02-95d8-a24469a2b1e9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xDObZw6NOkIEku9K",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "jobDescription"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "3b2d21cf-7759-4a72-af16-863a8e38d412",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.jobDescription }}",
+        "options": {
+          "systemMessage": "=You are a friendly, smart, and helpful sales assistant.\n\nYour goal is to guide users to the best recommendation by:\n\nAsking brief, relevant questions first\nUnderstanding their needs before suggesting products\nAvoiding technical jargon unless the user shows interest\nKeeping the tone human, approachable, and non-pushy\nAlways make the user feel heard and understood.\nBalance professionalism with casual warmth.\nDon’t rush to sell — earn trust through thoughtful suggestions.\nAsk one question at a time unless context allows more.\nIf the user shows hesitation or confusion, slow down and offer guidance.\nIf the user already knows what they want, get straight to product suggestions.\nUse emojis sparingly to add warmth, especially in gaming or youth-focused topics.\nKeep recommendations simple, visually clean, and easy to compare.\nWhen appropriate, offer upgrades or alternatives without pressure.\n\nwhile greeting, start conversation with \"Hi there, I am sales assistant from Coditude! May I know your name?\n\nAlways close with a helpful question like:\n“Would you like a link to check that out?” or “Want a comparison of 2-3 similar options?"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "f8ae17bb-d106-4762-98db-03e3fe8c1847",
+      "name": "salesperson rag agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "salesperson rag agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Laptop database",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Laptop database",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "watching inbox👁️": {
+      "main": [
+        [
+          {
+            "node": "getting details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Laptop database": {
+      "ai_tool": [
+        [
+          {
+            "node": "salesperson rag agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getting details": {
+      "main": [
+        []
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "salesperson rag agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "salesperson rag agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "55d9eea1-2ee8-4476-acca-107ed8621787",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "82a9af11771b1233b401187273d7e313ef46cff17318b4a2579762e2ea6ff880"
+  },
+  "id": "CrPJ7eLiHARiNKLs",
+  "tags": []
+}
