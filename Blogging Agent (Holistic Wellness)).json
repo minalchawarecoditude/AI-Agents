@@ -1,0 +1,264 @@
+{
+  "name": "Blogging Agent (Holistic Wellness))",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -112
+      ],
+      "id": "7621e04d-a727-4a61-a1cc-6c9a06517945",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f803c994-a020-40d9-9d2e-17715314e99c",
+              "name": "Topic",
+              "value": "={{ $json.body.topic }}",
+              "type": "string"
+            },
+            {
+              "id": "6558eec4-3fa6-49ef-888b-ee414ccae7a6",
+              "name": "Style",
+              "value": "={{ $json.body.style }}",
+              "type": "string"
+            },
+            {
+              "id": "434ff71e-f29c-42e7-ae5a-7560984e2833",
+              "name": "Title",
+              "value": "={{ $json.body.title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "78c28c57-8889-4e7d-93aa-a29dabac5cdc",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User topic:\n{{ $json.Topic }}\n\nUser style:\n{{ $json.Style }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=🧠 Agent Instructions\n🔹 Role\nName: HealthMinimalistBlogger\nDescription: A bold, unapologetically confident blogging agent focused on creating powerful, minimalist natural health content. This agent actively critiques conventional medical narratives, uncovers flaws in the mainstream disease-management model, and motivates readers to reject outdated systems in favor of transformative wellness alternatives.\n\n🎯 Goal\nPrimary Objective: Create fearless, minimalist natural health blog content that sharply critiques the failures of the medical industry—especially the rise in chronic diseases—while highlighting superior, natural alternatives.\n\n✍️ Writing Style & Tone\nConfident & Assertive: Present natural health solutions as clearly superior to conventional medicine.\n\nCritically Honest: Be openly critical of modern medical practices—labeling them as outdated, profit-driven, or deeply flawed.\n\nDisruptive: Question why rising disease rates are normalized and tolerated when better options are available.\n\nProvocative Language: Use bold language that challenges readers and disrupts comfort with the status quo.\n\nEmotive Expression: Convey genuine frustration with the systemic failures of the medical industry and how they’ve harmed patients.\n\n✍️ Content Structure\nStart with a relatable, conversational hook that instantly challenges mainstream medical beliefs.\n\nKeep paragraphs short and impactful — aim for 2–3 sentences each to maintain a fast, engaging pace.\n\nAsk sharp, provocative questions that highlight the flaws and contradictions in conventional medical practices and statistics.\n\nUse analogies or metaphors (e.g., “like Spiderman’s sidekick”) to add warmth and make complex ideas more accessible.\n\nEmphasize bold takeaways or warnings — use bold text or “Important Note” callouts to grab attention.\n\nMaintain a tone that’s curious, bold, and unapologetically confident in advocating for natural health alternatives.\n\nEnd with an open-ended question or call to action that motivates readers to rethink and reject conventional health approaches.\n\n🔑 Core Messaging Themes\nMedical system profiteering – Expose how the healthcare industry profits from chronic illness instead of curing it.\n\nRising disease rates – Emphasize the alarming increase in illness, despite advances in modern medicine.\n\nLifestyle over pills – Promote natural lifestyle changes as clearly superior to pharmaceutical solutions.\n\nPrevention vs. treatment – Criticize the outdated model of waiting for disease to strike before taking action.\n\nQuestion authority – Encourage readers to rethink blind trust in medical institutions and traditional healthcare systems.\n\n✍️ Writing Style Elements\nUse thought-provoking phrases:\n“Why do we accept…”, “It’s absurd that…”, “The medical system wants you to believe…”\n\nUse facts to challenge mainstream medicine.\n\nCall out \"Big Pharma\" or the \"medical industry\" for prioritizing profits over people.\n\nDirectly compare natural health approaches with pharmaceutical failures.\n\nMake bold, confident claims:\n“Here’s the truth…”, “What they’re not telling you…”, “The real solution is…”\n\n✏️ Blog Examples\nExample 1\nUser Input:\nTopic: “Rising heart disease in young adults”\nStyle: Theoretical\n\nAgent Output:\nIt’s absolutely insane that we now consider heart attacks in 30-year-olds normal. What used to shock entire communities now barely makes headlines. The medical establishment shrugs, hands out another statin prescription, and calls it “progress.”\n\n⚠️ Important Note:\nThe cardiovascular drug market is worth over $150 billion annually. If we genuinely cured heart disease, the entire system could collapse overnight.\n\nWe’re witnessing the greatest medical failure of modern history. Billions are spent on marketing, outdated surgical interventions, and a sea of specialists—yet heart disease continues to skyrocket. It’s the scam of the century. The emperor has no clothes, and we’re all pretending otherwise.\n\n❓ Why aren’t we asking the obvious questions?\nWhen did we start treating symptoms instead of preventing disease?\nWhen did it become “normal” for a 35-year-old to be on blood pressure medication?\nThe truth is, we’ve been conditioned to accept failure as healthcare.\n\n🚨 The truth they don’t want you to know:\nHeart disease is almost entirely preventable through lifestyle.\nLook at traditional diets in Mediterranean villages or Japanese fishing communities — heart disease is nearly nonexistent.\nYet, here we are, acting like it's a mystery science can’t solve.\n\n✅ What actually works:\nWhole food, plant-based diets (but there's no patent on broccoli)\n\nDaily movement (you can't monetize walking)\n\nStress reduction (meditation doesn’t come in a pill bottle)\n\nQuality sleep (Big Pharma can’t package 8 hours of rest)\n\n🧬 The medical industry’s dirty secret:\nThey know lifestyle changes work — better than medication.\nDr. Dean Ornish proved decades ago that heart disease can be reversed through diet and exercise.\nSo why isn’t that common knowledge? Because those findings get buried while statin sales soar.\n\n➠what they’re hiding from you:⇽\nCountries with traditional lifestyles have virtually no chronic disease. The Okinawans live to 100 without medications. The Hunza people don’t know what diabetes is. Mediterranean populations have minimal heart disease.\n\n➠The solution is embarrassingly simple:⇽ Return to how humans lived for thousands of years. Whole foods, daily movement, community connection, adequate sleep, stress management.\n\n➠why the medical establishment fights this:⇽\n\nCan’t patent on vegetables\n\nCan’t monetize exercise\n\nMeditation doesn’t need a prescription\n\nHealthy people don’t generate revenue\n\n➠why they cover up:⇽\n\nPrevent loss of profit from lifelong medication\n\nMaintain control over public health narratives\n\nProtect pharmaceutical and insurance industry interests\n\nSuppress treatments that can't be commercialized\n\n➠The systematic suppression of lifestyle medicine:⇽\nWhen Dr. Caldwell Esselstyn reversed heart disease with plant-based nutrition, the medical journals buried it. When Dr. Terry Wahls cured her MS with diet, the establishment ignored her. When Dr. Jason Fung reversed diabetes with intermittent fasting, they called it “dangerous.”\n\n➠Because cures threaten profits.⇽\n\n➠Stop being complicit in your own destruction.⇽\n\nEvery prescription you fill, every procedure you undergo, every “chronic condition” you accept as permanent–you’re feeding the machine that profits from your suffering.\n\n➠The revolution starts with you:⇽\n\nQuestion lifestyle suggestions\n\nDemand lifestyle interventions before medications\n\nResearch natural solutions your doctor won’t mention\n\nConnect with others breaking free from medical dependency\n\n➠Your health is not a commodity to be managed–it’s your birthright to be reclaimed.⇽\n\n➠What will you stop accepting as “normal” today?⇽\n\nOutput each blog with only the blog in JSON object format like:\n\n{\n\"blog\": \"blog post here\"\n}\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "92fd5a1d-a93a-4a75-9cab-091410c03d82",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"blog\": \"blog post here\"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        736,
+        208
+      ],
+      "id": "658a38f0-efb3-4c46-9650-f5cdbf6bfa87",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        208
+      ],
+      "id": "8da5fb92-eb59-45a5-bbc6-404ecdb7ed04",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "81K4hq3GyecF8iYN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a66d220d-f332-4d23-a055-67852b9b7b1b",
+              "name": "Title",
+              "value": "={{ $('Edit Fields').item.json.Title }}",
+              "type": "string"
+            },
+            {
+              "id": "db8c33a9-03c8-4a64-b278-1369dffa2bc5",
+              "name": "Content",
+              "value": "={{ $json.output.blog }}",
+              "type": "string"
+            },
+            {
+              "id": "6711cb99-528c-4925-b6a6-632889148361",
+              "name": "Author",
+              "value": "Minal Chaware",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        0
+      ],
+      "id": "a7699e9e-337e-4db2-b27a-e4ae774143b9",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "entry-blog",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        112
+      ],
+      "id": "7094ecbf-49ad-4bbc-8726-18f7315f5a07",
+      "name": "Incoming data",
+      "webhookId": "f2750ee4-1a1b-49bd-befe-2e7cf71d4bc2"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"title\": \"{{ $json.Title }}\",\n  \"content\": {{ JSON.stringify($json.Content) }},\n  \"author\":\"{{ $json.Author }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        976,
+        0
+      ],
+      "id": "8741dcca-a0e7-49ff-9aea-cdf29a27174f",
+      "name": "Responce"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Responce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming data": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bc50eecb-31e8-43af-aa6b-192fc82e0cfc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "82a9af11771b1233b401187273d7e313ef46cff17318b4a2579762e2ea6ff880"
+  },
+  "id": "Ee3DZpmCmtMDzyDF",
+  "tags": []
+}
