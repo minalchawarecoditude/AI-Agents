@@ -1,0 +1,806 @@
+{
+  "name": "Telegram bot for text and image",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "id": "90b134ef-c748-417b-8d9c-62b96c50ade1",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -1216,
+        96
+      ],
+      "webhookId": "b957dd8b-8f10-40e9-a041-56b3f7a176b9",
+      "typeVersion": 1.2,
+      "credentials": {
+        "telegramApi": {
+          "id": "DAc3akmodnGcYHJY",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.Image.replace(/\\n/g, '') }}"
+      },
+      "id": "a6b99c31-9c74-49c3-9d4c-0ecc5036ae69",
+      "name": "get file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -256,
+        -176
+      ],
+      "webhookId": "089cb9a3-a383-4e1d-b732-b877833ef538",
+      "typeVersion": 1.2,
+      "credentials": {
+        "telegramApi": {
+          "id": "DAc3akmodnGcYHJY",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('get input image').item.json.chatID }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "2801f534-71a9-4f69-b9a2-318a3517564b",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1264,
+        -176
+      ],
+      "webhookId": "1c599e35-fb24-4cae-9177-61fa09e0b5ca",
+      "typeVersion": 1.2,
+      "credentials": {
+        "telegramApi": {
+          "id": "DAc3akmodnGcYHJY",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "id": "9195d389-93b8-4871-9f1b-058f860ff2b9",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        576,
+        -432
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "OYrBeQf7e80tB3GR",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let text = $json.output;\n\n// Remove backslashes before Markdown symbols, EXCEPT before #\ntext = text.replace(/\\\\([*_()[\\]~`>+\\-=|{}.!])/g, '$1');\n\n// Remove Markdown formatting characters (but keep #)\ntext = text.replace(/[*_~`>+\\-=|{}]/g, '');\n\n// Optionally, clean up parentheses if you want plain text\ntext = text.replace(/[()]/g, '');\n\nreturn { json: { output: text } };\n"
+      },
+      "id": "1e290e27-bef6-40bb-bd4e-3fac41a2c2f4",
+      "name": "Replace",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1008,
+        -176
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "158f39d6-8281-4681-b489-15b5e6d1a380",
+      "name": "Tesseract OCR",
+      "type": "n8n-nodes-tesseractjs.tesseractNode",
+      "position": [
+        256,
+        -176
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Take input massages from user on telegram",
+        "height": 272,
+        "width": 176,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1248,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "48d11c91-966c-4114-992e-b6b6ab33d600",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "filters the incoming Telegram input which is image",
+        "height": 272,
+        "width": 224,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -592,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "664563ee-2c54-4eb2-af7e-a3406b4c0aec",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Downloads the image file from Telegram’s servers.",
+        "height": 272,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "98d8d463-19ed-468a-98db-f25d95195c86",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "You avoid MIME type errorsThe image is correctly recognized by the OCR engine \nThis is crucial because some downloaded files (especially from Telegram) are mislabeled as application/octet-stream, which OCR tools reject.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "height": 416,
+        "width": 208,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        -416
+      ],
+      "typeVersion": 1,
+      "id": "a6717f70-eaf0-47f0-8af9-9d7317631faf",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "This code node ensures the message is treated as plain text, not Markdown.\n\n_italic_\n\n*bold*\n\n~strikethrough~",
+        "height": 688,
+        "width": 192,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -432
+      ],
+      "typeVersion": 1,
+      "id": "b4159a19-ac6c-4f90-93ba-e7f7e3990a5b",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "employee_daily_data"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        1472
+      ],
+      "id": "1aa56bf6-f2eb-4dd1-8abb-f30966861d50",
+      "name": "Get many rows in Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "bZ4Km3hIWfrtJEkk",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Validate binary presence\nif (!item.binary || !item.binary.data) {\n  throw new Error(\"No binary data found\");\n}\n\n// Patch MIME type if incorrect\nitem.binary.data.mimeType = 'image/jpeg'; // or 'image/png' if needed\n\n// Optional: Rename file for clarity\nitem.binary.data.fileName = 'input.jpg';\n\nreturn item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -176
+      ],
+      "id": "e3dc004b-21b0-47cd-ba42-3ec9b76fead1",
+      "name": "Correct mimetype"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.photo }}",
+                    "rightValue": "={{ $json.message.photo }}",
+                    "operator": {
+                      "type": "array",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "3d63883f-7058-4dbc-b959-cf872dd578c5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d196cbfb-bc91-4a64-bf21-ff4bf26f02b1",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "={{ $json.message.text }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -960,
+        96
+      ],
+      "id": "3af135f3-7c03-4a3f-ab0c-c23deaa0b5f5",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "employee_daily_data"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        512
+      ],
+      "id": "1cd606cd-d1c1-48c3-b25c-b0a30ae6a98d",
+      "name": "employee_daily_data",
+      "credentials": {
+        "supabaseApi": {
+          "id": "bZ4Km3hIWfrtJEkk",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        320
+      ],
+      "id": "392322a6-7702-495c-8a02-b95c4a4646fe",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "c6bszP402zbPbNFp",
+          "name": "Postgres account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "id": "3d8e5831-648d-4e8e-a166-0d60d201f028",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        560,
+        320
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "OYrBeQf7e80tB3GR",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('get input text').item.json.chatID }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "89e00675-0955-4c06-9fb1-2d2334a74030",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1280,
+        112
+      ],
+      "webhookId": "1c599e35-fb24-4cae-9177-61fa09e0b5ca",
+      "typeVersion": 1.2,
+      "credentials": {
+        "telegramApi": {
+          "id": "DAc3akmodnGcYHJY",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let text = $json.output;\n\n// Remove backslashes before Markdown symbols, EXCEPT before #\ntext = text.replace(/\\\\([*_()[\\]~`>+\\-=|{}.!])/g, '$1');\n\n// Remove Markdown formatting characters (but keep #)\ntext = text.replace(/[*_~`>+\\-=|{}]/g, '');\n\n// Optionally, clean up parentheses if you want plain text\ntext = text.replace(/[()]/g, '');\n\nreturn { json: { output: text } };\n"
+      },
+      "id": "6dc1f31f-4dcf-4fb1-b077-94a4b0eedca3",
+      "name": "Replace1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1008,
+        112
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        -432
+      ],
+      "id": "36ae87c3-d281-4067-83a4-312f38f7952e",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "c6bszP402zbPbNFp",
+          "name": "Postgres account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "AI Agent : Clarify text extracted from images via OCR make OCR results easy to read and understand by cleaning up formatting\n\nGoogle Gemini: Act as a brain of an AI Agent.\n\nPostgres Memory: use to save the text of the image",
+        "height": 1120,
+        "width": 432,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -656
+      ],
+      "typeVersion": 1,
+      "id": "aabd8f2e-bbbd-44ac-9374-8137cd795c01",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "Telegram node: Help to send the message to the user",
+        "height": 608,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "0cf72790-9475-464f-a78d-d306105ec913",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "Switch nod : Help to switch  the input if it is image or text.",
+        "height": 304,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        -16
+      ],
+      "typeVersion": 1,
+      "id": "3e7dbe75-13eb-435f-9ed5-b1caf9b5784d",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c8cd1608-2326-401d-9c47-79a6a72f5fc7",
+              "name": "chatID",
+              "type": "number",
+              "value": "={{ $json.message.chat.id }}"
+            },
+            {
+              "id": "0f1a41cb-8630-4e10-b445-f6bbbcf91d33",
+              "name": "Image",
+              "type": "string",
+              "value": "={{ $json[\"message\"][\"photo\"][$json[\"message\"][\"photo\"].length - 1][\"file_id\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bac163b0-f806-48df-bc1e-22a1d35e1050",
+      "name": "get input image",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -528,
+        -176
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c8cd1608-2326-401d-9c47-79a6a72f5fc7",
+              "name": "chatID",
+              "type": "number",
+              "value": "={{ $json.message.chat.id }}"
+            },
+            {
+              "id": "0f1a41cb-8630-4e10-b445-f6bbbcf91d33",
+              "name": "Text",
+              "type": "string",
+              "value": "={{ $json.message.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6127ad9b-ec40-428f-84d2-9a20e198d550",
+      "name": "get input text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        272,
+        112
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=You are an AI assistant designed to clarify text extracted from images via OCR.\n\nYour primary goal is to make OCR results easy to read and understand by:\n\nCleaning up formatting\n\nCorrecting character recognition errors\n\nReorganizing content into a more logical structure\n\n🧠 Behavior Guidelines:\n\nIf the OCR text resembles a table or structured data, do not recreate it as a table. Instead, convert it into concise bullet points for better readability.\n\nPrioritize clarity, accuracy, and user-friendly formatting.\n\nFix common OCR issues such as:\n\nBroken or incomplete words/sentences\n\nMisrecognized characters Example: \"0\" vs \"O\", \"1\" vs \"I\"\n\nMisplaced symbols or messy formatting\n\nImportant: Since this message will be sent via Telegram, avoid using markdown-sensitive characters, including: _, *, ~, >, #, +, -, =, |, {, }, ., !, \"\n\n\n"
+        }
+      },
+      "id": "9aa6f8fa-99b6-41b9-972c-c5c00263845c",
+      "name": "Image",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        608,
+        -176
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Text }}",
+        "options": {
+          "systemMessage": "=use tool: \n\nemployee_daily_data: use this tool to check employee daily details like employee_name, date, task_no, task, pr_no\n\nYour task:\n\nyour task is to understand the input and check the input is available in the employee_daily_data.\nInput will be anything it would be date, employee_name, task_no, or a pr_no.\nyou have to check employee_name task_no is matching with pr_no.\nOr sometime user ask to check the input details are matching with the with employee_daily_data. If it is matching reply to the user its matching.\n\n\n"
+        }
+      },
+      "id": "e5c41cfa-c2a3-42a2-8858-2e9d01aff019",
+      "name": "Text",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        592,
+        112
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "content": "filters the incoming Telegram input which is text\n",
+        "height": 272,
+        "width": 224,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        32
+      ],
+      "typeVersion": 1,
+      "id": "87dd4521-e712-47a4-85aa-d96683badbcb",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "Subabase data: Get the data related to the employee to match or check the employee daily data.",
+        "height": 336,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        944,
+        288
+      ],
+      "typeVersion": 1,
+      "id": "fe1ec3bf-281d-43e2-ba80-f00be140ef2b",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "#Tesseract OCR: Tesseractis an open source OCR (Optical Character Recognition) engine that can recognize text\n",
+        "height": 432,
+        "width": 166
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        224,
+        -432
+      ],
+      "typeVersion": 1,
+      "id": "35ae2294-7e12-4079-bad2-3257e1a2d61f",
+      "name": "Sticky Note10"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Replace": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get file": {
+      "main": [
+        [
+          {
+            "node": "Correct mimetype",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tesseract OCR": {
+      "main": [
+        [
+          {
+            "node": "Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows in Supabase": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Correct mimetype": {
+      "main": [
+        [
+          {
+            "node": "Tesseract OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "get input image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get input text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "employee_daily_data": {
+      "ai_tool": [
+        [
+          {
+            "node": "Text",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Text",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Image",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get input image": {
+      "main": [
+        [
+          {
+            "node": "get file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get input text": {
+      "main": [
+        [
+          {
+            "node": "Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image": {
+      "main": [
+        [
+          {
+            "node": "Replace",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text": {
+      "main": [
+        [
+          {
+            "node": "Replace1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8e7d3d79-20a0-4eb0-8b14-25bbbc7fa696",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18da88524fcf11b9c3127972546099a22bd8028b2d2b22f0621c9e108973b11e"
+  },
+  "id": "NkywCSDZwdpbclY3",
+  "tags": []
+}
