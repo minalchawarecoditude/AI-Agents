@@ -1,0 +1,558 @@
+{
+  "name": "image to text",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "id": "43585eb1-f6c8-44ae-a8f0-cb6d9d4352e4",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -1376,
+        -416
+      ],
+      "webhookId": "b957dd8b-8f10-40e9-a041-56b3f7a176b9",
+      "typeVersion": 1.2,
+      "credentials": {
+        "telegramApi": {
+          "id": "REidoguQYLswtWtB",
+          "name": "image to text"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c8cd1608-2326-401d-9c47-79a6a72f5fc7",
+              "name": "chatID",
+              "type": "number",
+              "value": "={{ $json.message.chat.id }}"
+            },
+            {
+              "id": "0f1a41cb-8630-4e10-b445-f6bbbcf91d33",
+              "name": "Image",
+              "type": "string",
+              "value": "={{ $json[\"message\"][\"photo\"][$json[\"message\"][\"photo\"].length - 1][\"file_id\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a31faa8e-4431-40bb-88ef-dec9d814861e",
+      "name": "get input image",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1120,
+        -416
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "15ca7b46-e6b6-4240-9252-a5ed936e44a1",
+      "name": "Tesseract OCR",
+      "type": "n8n-nodes-tesseractjs.tesseractNode",
+      "position": [
+        -480,
+        -592
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Validate binary presence\nif (!item.binary || !item.binary.data) {\n  throw new Error(\"No binary data found\");\n}\n\n// Patch MIME type if incorrect\nitem.binary.data.mimeType = 'image/jpeg'; // or 'image/png' if needed\n\n// Optional: Rename file for clarity\nitem.binary.data.fileName = 'input.jpg';\n\nreturn item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        -416
+      ],
+      "id": "e6463e35-cd2a-4673-885b-24461ccf3012",
+      "name": "Correct mimetype"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json[\"ParsedResults\"][0][\"ParsedText\"]; // Get the parsed text from OCR\n\nconst parsedData = {\n    date: text.match(/Date\\s+([\\s\\S]*?)Expense Type/)?.[1]?.trim(),\n    expenseType: text.match(/Expense Type\\s+([\\s\\S]*?)Description/)?.[1]?.trim(),\n    description: text.match(/Description\\s+([\\s\\S]*?)Amount \\(USD\\)/)?.[1]?.trim(),\n    amount: text.match(/Amount \\(USD\\)\\s+([\\s\\S]*)/)?.[1]?.trim(),\n};\n\nreturn [{ json: parsedData }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        -416
+      ],
+      "id": "189f1258-52ab-4fd5-ab37-62fe047f8b4a",
+      "name": "parse text"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.Image.replace(/\\n/g, '') }}"
+      },
+      "id": "f863548b-1cf0-456c-91a7-706395386236",
+      "name": "Download file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -880,
+        -416
+      ],
+      "webhookId": "089cb9a3-a383-4e1d-b732-b877833ef538",
+      "typeVersion": 1.2,
+      "credentials": {
+        "telegramApi": {
+          "id": "REidoguQYLswtWtB",
+          "name": "image to text"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Download file').item.json.result.file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1344,
+        -160
+      ],
+      "id": "5eca3ee9-0e0f-4829-a623-f36613b2149c",
+      "name": "Get a file",
+      "webhookId": "500ba304-3721-4fa2-8af9-211b5a70a3e6",
+      "credentials": {
+        "telegramApi": {
+          "id": "REidoguQYLswtWtB",
+          "name": "image to text"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        32
+      ],
+      "id": "9ffa9808-fdef-48fd-8071-0fe1e48ed150",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "OYrBeQf7e80tB3GR",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $now }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -432,
+        48
+      ],
+      "id": "40edd33a-7cec-473c-a421-ffc70915028b",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "c6bszP402zbPbNFp",
+          "name": "Postgres account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ocr.space/parse/image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eb412d755088957"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -352,
+        -416
+      ],
+      "id": "8d4338b6-c4b6-42a8-b48c-20ff2ba76632",
+      "name": "Analysed Image"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "19L7iQstZylyOap6gL5Zbwabor7Pvb2NRUaKMuYt3WYo",
+          "mode": "list",
+          "cachedResultName": "Daily Expence",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19L7iQstZylyOap6gL5Zbwabor7Pvb2NRUaKMuYt3WYo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19L7iQstZylyOap6gL5Zbwabor7Pvb2NRUaKMuYt3WYo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Expence type": "={{ $json.expenseType }}",
+            "Description": "={{ $json.description }}",
+            "Amount(USD)": "={{ $json.amount }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expence type",
+              "displayName": "Expence type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount(USD)",
+              "displayName": "Amount(USD)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        224,
+        -416
+      ],
+      "id": "070bea22-7203-4b6c-8ac5-fec5215d8ed4",
+      "name": "Update Database",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sik7Tgb8hbRO4DN1",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=Daily Expence [{{ $now }}]",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1IrrsE4wVLWINgpU3L-JgGZaMhQ4-3yHP",
+          "mode": "list",
+          "cachedResultName": "Daily Expence",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1IrrsE4wVLWINgpU3L-JgGZaMhQ4-3yHP"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1104,
+        -160
+      ],
+      "id": "c69dcd86-57d8-42e5-aa72-db41e1051ed7",
+      "name": "Add invoice image to drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "vPOgiBLpyXji2DEx",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "357bbed7-8058-4c2b-bc78-a4dbffa4bb7d",
+              "name": "Daily Expence Information",
+              "value": "={{ $('Analysed Image').item.json.ParsedResults[0].ParsedText }}",
+              "type": "string"
+            },
+            {
+              "id": "9e77bd45-aff1-4070-ab81-e4ba089e7c18",
+              "name": "file",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -848,
+        -160
+      ],
+      "id": "36087b95-5109-407a-9736-cf672c4da761",
+      "name": "set"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Daily Expence Information\n{{ $json['Daily Expence Information'] }}\n\nfile\n{{ $json.file }}",
+        "options": {
+          "systemMessage": "=# System Role\nYou are an efficient daily expence assistant that extracts key information from daily expence and generates concise user responses.\n\n# Task Specification\nThank the user for submitting an daily expence. Extract the total amount, due date, and a summary of the notes from the invoice. Inform the user that the original daily expence has been added to the Google Drive, include the file name, and provide the link to the daily expence database.\n\n# Specifics and Context\nStart off by thanking the user for submitting an daily expene. Respond clearly and concisely to help users quickly understand their invoice details and access the database if needed.\n\n# Example\n## Input\n[Daily Expence Information]\nDate: \"\"\nExpence Type: \"\"\nDescription: \"\"\nAmount: \"\"\n\n\n[File Name]\nDaily Expence\n\n[Link to the Daily Expence Database]\nhttps://docs.google.com/spreadsheets/d/19L7iQstZylyOap6gL5Zbwabor7Pvb2NRUaKMuYt3WYo/edit?gid=0#gid=0\n\n\n# Output\nThanks for submitting!\n\nThe total amount of the invoice is **950.00**, \n\n\nThe original Daily Expence has been added to Google Drive with the file name\n**Daily Expence**.\n\nYou can access the Daily Expence database [here]\nhttps://docs.google.com/spreadsheets/d/19L7iQstZylyOap6gL5Zbwabor7Pvb2NRUaKMuYt3WYo/edit?gid=0#gid=0"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -608,
+        -160
+      ],
+      "id": "5b46f249-5243-4db9-8ae9-e8d9cc49139f",
+      "name": "Daily Expence agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        -160
+      ],
+      "id": "bc4cd7ce-01bc-4ef0-8b53-a7cb40ae696a",
+      "name": "reply",
+      "webhookId": "7aa9f421-a452-4cae-b16b-1f8980a2fa52",
+      "credentials": {
+        "telegramApi": {
+          "id": "REidoguQYLswtWtB",
+          "name": "image to text"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "get input image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get input image": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Correct mimetype": {
+      "main": [
+        [
+          {
+            "node": "Analysed Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse text": {
+      "main": [
+        [
+          {
+            "node": "Update Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Correct mimetype",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Add invoice image to drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Daily Expence agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Daily Expence agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analysed Image": {
+      "main": [
+        [
+          {
+            "node": "parse text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Database": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add invoice image to drive": {
+      "main": [
+        [
+          {
+            "node": "set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set": {
+      "main": [
+        [
+          {
+            "node": "Daily Expence agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Expence agent": {
+      "main": [
+        [
+          {
+            "node": "reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d206b587-0d75-4f3b-a81a-c7a6b11596e5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18da88524fcf11b9c3127972546099a22bd8028b2d2b22f0621c9e108973b11e"
+  },
+  "id": "b4KkV39w5hGsiON6",
+  "tags": []
+}
