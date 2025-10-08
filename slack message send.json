@@ -1,0 +1,161 @@
+{
+  "name": "slack message send",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "any_event"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C09KYGFEW8Y",
+          "mode": "list",
+          "cachedResultName": "demo"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        -256
+      ],
+      "id": "e9005be4-f3ae-4a1a-bd10-cf8086275f70",
+      "name": "Slack Trigger",
+      "webhookId": "ad161bea-428e-4019-84c2-9d3c461664c5",
+      "credentials": {
+        "slackApi": {
+          "id": "gt81y909DbA4ejJU",
+          "name": "Slack account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -640,
+        -256
+      ],
+      "id": "6b4f075d-b99e-43dc-8778-840fa1fd383e",
+      "name": "AI Agent",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -80
+      ],
+      "id": "2e10c7a5-6e70-405b-8048-2f01595c1f7e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "OYrBeQf7e80tB3GR",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "=U09K3RBL4V8",
+          "mode": "id"
+        },
+        "text": "= Hello Minal,\n\n \nThis is a gentle reminder that the *client ticket number* ({{client_ticket_name}}) is missing for Work Package ID: {{work_package_id}} under the project {{project_name}}.\n\nKindly update it at your earliest convenience to ensure smooth progress of the project.\n\nThank you for your attention and cooperation.\n",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        -96
+      ],
+      "id": "139ff166-8e7b-412b-8403-a46be4ed612b",
+      "name": "Send a message",
+      "webhookId": "b38f9ab8-0e39-490b-b57f-7e82b8e28643",
+      "credentials": {
+        "slackApi": {
+          "id": "gt81y909DbA4ejJU",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -96
+      ],
+      "id": "3414d380-f4a2-4af4-895c-d43d0d05d49e",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5ec5ed0d-56c7-4884-b8e8-47f9f62f425c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18da88524fcf11b9c3127972546099a22bd8028b2d2b22f0621c9e108973b11e"
+  },
+  "id": "cFRYgoswWGOcs002",
+  "tags": []
+}
